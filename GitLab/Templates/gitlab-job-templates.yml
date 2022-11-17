@@ -3,6 +3,7 @@
     GIT_STRATEGY: none
     namespace: dev
     kube_config:
+    replica: 1
   before_script:
     - kubePath=$(eval eval 'echo \$"$kube_config"')
     - export KUBECONFIG=$kubePath
@@ -17,6 +18,7 @@
         --name-template tgs \
         -f - 
       {
+        "replicaCount": $replica,
         "nodeSelector": $node_selector,
         "tolerations": [$dedicated],
         "resources": $resources,
@@ -30,6 +32,7 @@
         -f - \
         | kubectl -n $namespace apply -f -
       {
+        "replicaCount": $replica,
         "nodeSelector": $node_selector,
         "tolerations": [$dedicated],
         "resources": $resources,
