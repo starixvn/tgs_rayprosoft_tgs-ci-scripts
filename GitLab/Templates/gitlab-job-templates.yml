@@ -49,6 +49,6 @@
       --header 'Content-Type: application/json' \
       --data-raw "{
           \"chat_id\": $Telegram_Chat_Id,
-          \"text\": \"專案: $CI_PROJECT_NAME\n服務:$HelmTemplateFolderName\n分支: $CI_COMMIT_BRANCH\n環境: $namespace\nPipeline: $CI_PIPELINE_URL\nCommit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA\n作者: $GITLAB_USER_LOGIN\",
+          \"text\": \"專案: $CI_PROJECT_NAME\n服務: $HelmTemplateFolderName\n分支: $CI_COMMIT_BRANCH\n環境: $namespace\nPipeline: $CI_PIPELINE_URL\nCommit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA\n作者: $GITLAB_USER_LOGIN\",
           \"parse_mode\": \"HTML\"
       }"
