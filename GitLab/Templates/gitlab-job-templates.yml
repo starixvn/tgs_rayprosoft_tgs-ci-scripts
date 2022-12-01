@@ -12,8 +12,6 @@
     paths:
       - cache/
   script:
-    - mkdir -p cache/
-    - echo "$namespace" > cache/env.txt
     - export resources=$(kubectl get cm resources-setting -o jsonpath={.data.$TgsSettingKey})
     - export dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
     - export node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
@@ -45,21 +43,12 @@
         "autoscaling": $autoscaling
       }
       EOF
-notification:
-  stage: .post
-  cache:
-    key: env-cache
-    paths:
-      - cache/
-  script: 
-    - printenv
-    - pwd
-    - export Env=$(cat cache/env.txt)
+  after_script:
     - |
       curl --location --request POST $Telegram_Bot_Url \
       --header 'Content-Type: application/json' \
       --data-raw "{
           \"chat_id\": $Telegram_Chat_Id,
-          \"text\": \"Project: $CI_PROJECT_NAME\nBranch: $CI_COMMIT_BRANCH\nEnv: $Env\nPipeline: $CI_PIPELINE_URL\nCommit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA\nStarted by: $GITLAB_USER_LOGIN\",
+          \"text\": \"專案: $CI_PROJECT_NAME\n分支: $CI_COMMIT_BRANCH\n環境: $namespace\nPipeline: $CI_PIPELINE_URL\nCommit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA\n作者: $GITLAB_USER_LOGIN\",
           \"parse_mode\": \"HTML\"
       }"
