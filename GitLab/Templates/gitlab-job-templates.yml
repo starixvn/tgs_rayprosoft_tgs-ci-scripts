@@ -9,6 +9,9 @@ default:
   stage: build
   script:
     - dotnet build -c $BuildConfiguration
+  only:
+    - merge_requests
+    - main
   cache:
     key: $BuildCacheKey
     untracked: true
@@ -19,6 +22,9 @@ default:
     - dotnet test -c $BuildConfiguration -l:"junit;LogFilePath=../TestReports/{assembly}-TestReport.xml" --no-restore --no-build
   needs:
     - build-code
+  only:
+    - merge_requests
+    - main
   cache:
     key: $BuildCacheKey
     untracked: true
@@ -35,6 +41,8 @@ default:
   needs:
     - build-code
     - unit-test
+  only:
+    - main
   cache:
     key: $BuildCacheKey
     untracked: true
@@ -47,6 +55,8 @@ default:
   stage: publish
   needs:
     - unit-test
+  only:
+    - main
   script:
     - mkdir -p artifacts/k8s
     - cp -R deployment/k8s/$HelmTemplateFolderName artifacts/k8s/
@@ -110,9 +120,19 @@ default:
   after_script:
     - |
       curl --location --request POST $Telegram_Bot_Url \
-      --header 'Content-Type: application/json' \
-      --data-raw "{
-          \"chat_id\": $Telegram_Chat_Id,
-          \"text\": \"專案: $CI_PROJECT_NAME\n服務: $HelmTemplateFolderName\n分支: $CI_COMMIT_BRANCH\n環境: $namespace\nPipeline: $CI_PIPELINE_URL\nCommit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA\n作者: $GITLAB_USER_LOGIN\",
-          \"parse_mode\": \"HTML\"
-      }"
+        --header 'Content-Type: application/json' \
+        --data-binary @- << EOF
+      {
+        "chat_id": $Telegram_Chat_Id,
+        "text": "
+      專案: $CI_PROJECT_NAME
+      服務: $HelmTemplateFolderName
+      分支: $CI_COMMIT_BRANCH
+      環境: $namespace
+      Pipeline: $CI_PIPELINE_URL
+      Commit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA
+      作者: $GITLAB_USER_LOGIN",
+        "parse_mode": "HTML"
+      }
+      EOF
+  when: manual
