@@ -34,7 +34,7 @@ default:
     reports:
       junit: ./TestReports/*-TestReport.xml
 
-.push-nuget:
+.push-nuget-template:
   variables:
     projectFolder:
     project: $projectFolder/$projectFolder.csproj
