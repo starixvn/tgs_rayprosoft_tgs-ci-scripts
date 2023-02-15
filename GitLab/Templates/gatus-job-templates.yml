@@ -1,4 +1,8 @@
 .deploy-gatus:
+  variables:
+    namespace: dev
+    kube_config:
+    HelmTemplateFolderName:
   only:
     - main
   when: manual
@@ -6,11 +10,34 @@
     - kubePath=$(eval eval 'echo \$"$kube_config"')
     - export KUBECONFIG=$kubePath
   script:
-    - bash convert_to_config.sh $namespace services-$namespace.csv $gatus_url
     - |
-      helm template gatus deployment/k8s/gatus \
+      cat << EOF | yq e -P | helm template deployment/k8s/$HelmTemplateFolderName \
+        -n $namespace \
+        --name-template gatus \
         --set-file config=config-$namespace.yaml \
-        --set ingress.enabled=true \
-        --set ingress.hosts[0]=$domain \
-        -f deployment/k8s/gatus/values.yaml -n $namespace \
-        | kubectl apply -f -
+        -f - 
+      {
+        "ingress": {
+          "enabled": true,
+          "hosts": [
+            "$domain"
+          ]
+        }
+      }
+      EOF
+    - |
+      cat << EOF | yq e -P | helm template deployment/k8s/$HelmTemplateFolderName \
+        -n $namespace \
+        --name-template gatus \
+        --set-file config=config-$namespace.yaml \
+        -f - \
+        | kubectl -n $namespace apply -f -
+      {
+        "ingress": {
+          "enabled": true,
+          "hosts": [
+            "$domain"
+          ]
+        }
+      }
+      EOF
