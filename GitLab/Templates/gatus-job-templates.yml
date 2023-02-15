@@ -1,0 +1,61 @@
+.deploy-gatus:
+  variables:
+    namespace: dev
+    kube_config:
+    HelmTemplateFolderName:
+  only:
+    - main
+  when: manual
+  before_script:
+    - kubePath=$(eval eval 'echo \$"$kube_config"')
+    - export KUBECONFIG=$kubePath
+  script:
+    - |
+      cat << EOF | yq e -P | helm template deployment/k8s/$HelmTemplateFolderName \
+        -n $namespace \
+        --name-template gatus \
+        --set-file config=config-$namespace.yaml \
+        -f - 
+      {
+        "ingress": {
+          "enabled": true,
+          "hosts": [
+            "$domain"
+          ]
+        }
+      }
+      EOF
+    - |
+      cat << EOF | yq e -P | helm template deployment/k8s/$HelmTemplateFolderName \
+        -n $namespace \
+        --name-template gatus \
+        --set-file config=config-$namespace.yaml \
+        -f - \
+        | kubectl -n $namespace apply -f -
+      {
+        "ingress": {
+          "enabled": true,
+          "hosts": [
+            "$domain"
+          ]
+        }
+      }
+      EOF
+  after_script:
+    - |
+      curl --location --request POST $Telegram_Bot_Url \
+        --header 'Content-Type: application/json' \
+        --data-binary @- << EOF
+      {
+        "chat_id": $Telegram_Chat_Id,
+        "text": "
+      專案: $CI_PROJECT_NAME
+      服務網址: $gatus_url
+      分支: $CI_COMMIT_BRANCH
+      環境: $namespace
+      Pipeline: $CI_PIPELINE_URL
+      Commit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA
+      作者: $GITLAB_USER_LOGIN",
+        "parse_mode": "HTML"
+      }
+      EOF
