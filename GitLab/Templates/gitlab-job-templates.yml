@@ -49,9 +49,9 @@ default:
     - |
       function push_package() {
         projectFolder=$1
-        project=${2:=$projectFolder/$projectFolder.csproj}
+        project=$2
 
-        dotnet pack -c $BuildConfiguration "$project" --no-restore --no-build
+        dotnet pack -c $BuildConfiguration "${project:=$projectFolder/$projectFolder.csproj}" --no-restore --no-build
         dotnet nuget push "$projectFolder/bin/$BuildConfiguration/*.nupkg" -s "raypro-baget" -k $NugetApiKey --skip-duplicate
       }
   artifacts:
