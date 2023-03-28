@@ -34,6 +34,31 @@ default:
     reports:
       junit: ./TestReports/*-TestReport.xml
 
+.push-nuget-template:
+  stage: publish
+  needs:
+    - build-code
+    - unit-test
+  only:
+    - main
+  cache:
+    key: $BuildCacheKey
+    untracked: true
+    policy: pull
+  before_script: 
+    - |
+      function push_package() {
+        projectFolder=$1
+        project=$2
+
+        dotnet pack -c $BuildConfiguration "${project:=$projectFolder/$projectFolder.csproj}" --no-restore --no-build
+        dotnet nuget push "$projectFolder/bin/$BuildConfiguration/*.nupkg" -s "raypro-baget" -k $NugetApiKey --skip-duplicate
+      }
+  artifacts:
+    name: Nuget
+    untracked: false
+    expire_in: "30 days"
+
 .push-docker-image-template:
   variables:
     project:
