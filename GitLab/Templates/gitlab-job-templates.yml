@@ -48,8 +48,8 @@ default:
   before_script: 
     - |
       function push_package() {
-        projectFolder=$1
-        project=$2
+        local projectFolder=$1
+        local project=$2
 
         dotnet pack -c $BuildConfiguration "${project:=$projectFolder/$projectFolder.csproj}" --no-restore --no-build
         dotnet nuget push "$projectFolder/bin/$BuildConfiguration/*.nupkg" -s "raypro-baget" -k $NugetApiKey --skip-duplicate
@@ -75,9 +75,9 @@ default:
   before_script:
     - |
       function push_docker() {
-        projectPath=$1
-        image=$2
-        imageTag=$3
+        local projectPath=$1
+        local image=$2
+        local imageTag=$3
 
         dotnet build "${projectPath:=$project}" \
           -c $BuildConfiguration \
@@ -99,10 +99,10 @@ default:
     - mkdir -p artifacts/k8s
     - |
       function push_k8s_template() {
-        tempFolderName=$1
-        artifactsPath=$2
-        image=$3
-        imageTag=$4
+        local tempFolderName=$1
+        local artifactsPath=$2
+        local image=$3
+        local imageTag=$4
 
         cp -R deployment/k8s/$tempFolderName ${artifactsPath:=artifacts/k8s/}
         yq -i e '
@@ -135,14 +135,14 @@ default:
   before_script:
     - |
       function deploy_k8s() {
-        settingKey=$1
-        helmFolderName=$2
-        ns=$3
+        local settingKey=$1
+        local helmFolderName=$2
+        local ns=$3
 
-        resources=$(kubectl get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
-        dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
-        node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
-        autoscaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+        local resources=$(kubectl get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+        local dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
+        local node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
+        local autoscaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
 
         cat << EOF | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
           -n ${ns:$namespace} \
