@@ -109,10 +109,13 @@ default:
         local imageTag=$3
         local artifactsPath=$4
 
+        image=${image:=$ImageName}
+        imageTag=${imageTag:=$Tag}
+
         cp -R deployment/k8s/$tempFolderName ${artifactsPath:=$artifacts/k8s/}
         yq -i e '
-          .image.repository=strenv(${image:=$ImageName}) |
-          .image.tag=strenv(${imageTag:=$Tag})
+          .image.repository = strenv(image) |
+          .image.tag = strenv(imageTag)
         ' ${artifactsPath:=$artifacts/k8s/}/$tempFolderName/values.yaml
       }
   script:
