@@ -105,8 +105,8 @@ default:
     - |
       function push_k8s_template() {
         local tempFolderName=$1
-        local image=$2
-        local imageTag=$3
+        image=$2
+        imageTag=$3
         local artifactsPath=$4
 
         image=${image:=$ImageName}
