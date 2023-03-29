@@ -161,7 +161,7 @@ default:
           "resources": $resources,
           "autoscaling": $autoscaling
         }
-        EOF
+      EOF
 
         cat << EOF | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
           -n ${ns:$namespace} \
@@ -175,7 +175,7 @@ default:
           "resources": $resources,
           "autoscaling": $autoscaling
         }
-        EOF
+      EOF
       }
   script:
     - deploy_k8s $TgsSettingKey $HelmTemplateFolderName $namespace
