@@ -46,6 +46,7 @@ default:
     untracked: true
     policy: pull
   before_script: 
+    - !reference [default, before_script]
     - |
       function push_package() {
         local projectFolder=$1
@@ -73,6 +74,7 @@ default:
     untracked: true
     policy: pull
   before_script:
+    - !reference [default, before_script]
     - |
       function push_docker() {
         local projectPath=$1
@@ -96,6 +98,7 @@ default:
   only:
     - main
   before_script:
+    - !reference [default, before_script]
     - mkdir -p artifacts/k8s
     - |
       function push_k8s_template() {
@@ -126,6 +129,7 @@ default:
     kube_config:
     replica: 1
   before_script:
+    - !reference [default, before_script]
     - kubePath=$(eval eval 'echo \$"$kube_config"')
     - export KUBECONFIG=$kubePath
   cache:
