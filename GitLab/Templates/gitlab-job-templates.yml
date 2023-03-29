@@ -92,6 +92,8 @@ default:
     - push_docker $project $ImageName $Tag
 
 .push-k8s-template:
+  variables:
+    artifacts: artifacts
   stage: publish
   needs:
     - unit-test
@@ -99,19 +101,19 @@ default:
     - main
   before_script:
     - !reference [default, before_script]
-    - mkdir -p artifacts/k8s
+    - mkdir -p "$artifacts/k8s"
     - |
       function push_k8s_template() {
         local tempFolderName=$1
-        local artifactsPath=$2
-        local image=$3
-        local imageTag=$4
+        local image=$2
+        local imageTag=$3
+        local artifactsPath=$4
 
-        cp -R deployment/k8s/$tempFolderName ${artifactsPath:=artifacts/k8s/}
+        cp -R deployment/k8s/$tempFolderName ${artifactsPath:=$artifacts/k8s/}
         yq -i e '
-          .image.repository = strenv(${image:=$ImageName}) |
-          .image.tag = strenv(${imageTag:=$Tag})
-        ' artifacts/k8s/$tempFolderName/values.yaml
+          .image.repository=strenv(${image:=$ImageName}) |
+          .image.tag=strenv(${imageTag:=$Tag})
+        ' ${artifactsPath:=$artifacts/k8s/}/$tempFolderName/values.yaml
       }
   script:
     - push_k8s_template $HelmTemplateFolderName
@@ -120,7 +122,7 @@ default:
     untracked: false
     expire_in: "180 days"
     paths:
-      - artifacts/**/*
+      - $artifacts/**/*
 
 .deploy-template:
   variables:
