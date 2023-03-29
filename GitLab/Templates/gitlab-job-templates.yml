@@ -75,9 +75,9 @@ default:
   before_script:
     - |
       function push_docker() {
-        projectPath = $1
-        image = $2
-        imageTag = $3
+        projectPath=$1
+        image=$2
+        imageTag=$3
 
         dotnet build "${projectPath:=$project}" \
           -c $BuildConfiguration \
@@ -99,10 +99,10 @@ default:
     - mkdir -p artifacts/k8s
     - |
       function push_k8s_template() {
-        tempFolderName = $1
-        artifactsPath = $2
-        image = $3
-        imageTag = $4
+        tempFolderName=$1
+        artifactsPath=$2
+        image=$3
+        imageTag=$4
 
         cp -R deployment/k8s/$tempFolderName ${artifactsPath:=artifacts/k8s/}
         yq -i e '
@@ -135,9 +135,9 @@ default:
   before_script:
     - |
       function deploy_k8s() {
-        settingKey = $1
-        helmFolderName = $2
-        ns = $3
+        settingKey=$1
+        helmFolderName=$2
+        ns=$3
 
         resources=$(kubectl get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
         dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
