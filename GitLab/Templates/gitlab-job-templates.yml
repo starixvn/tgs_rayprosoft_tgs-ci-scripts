@@ -134,11 +134,6 @@ default:
     - !reference [default, before_script]
     - kubePath=$(eval eval 'echo \$"$kube_config"')
     - export KUBECONFIG=$kubePath
-  cache:
-    key: env-cache
-    paths:
-      - cache/
-  before_script:
     - |
       function deploy_k8s() {
         local settingKey=$1
@@ -177,6 +172,10 @@ default:
         }
       EOF
       }
+  cache:
+    key: env-cache
+    paths:
+      - cache/
   script:
     - deploy_k8s $TgsSettingKey $HelmTemplateFolderName $namespace
   after_script:
