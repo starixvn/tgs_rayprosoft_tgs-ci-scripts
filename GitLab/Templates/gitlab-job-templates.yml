@@ -130,12 +130,12 @@ default:
     namespace: dev
     kube_config:
     replica: 1
-    name_template: tgs
   before_script:
     - !reference [default, before_script]
     - kubePath=$(eval eval 'echo \$"$kube_config"')
     - export KUBECONFIG=$kubePath
     - |
+      name_template=tgs
       function deploy_k8s() {
         local settingKey=$1
         local helmFolderName=$2
