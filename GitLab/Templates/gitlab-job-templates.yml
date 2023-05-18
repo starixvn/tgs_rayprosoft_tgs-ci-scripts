@@ -170,7 +170,7 @@ default:
           -n ${ns:$namespace} \
           --name-template $name_template \
           -f - \
-          | kubectl apply -n ${ns:=$namespace} apply -f -
+          | kubectl -n ${ns:=$namespace} apply -f -
       }
   cache:
     key: env-cache
