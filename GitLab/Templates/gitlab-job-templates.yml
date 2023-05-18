@@ -130,6 +130,7 @@ default:
     namespace: dev
     kube_config:
     replica: 1
+    name_template: tgs
   before_script:
     - !reference [default, before_script]
     - kubePath=$(eval eval 'echo \$"$kube_config"')
@@ -160,13 +161,13 @@ default:
         echo $valueConfig $extendSettings | jq -s 'reduce .[] as $item ({}; . * $item)' \
           | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
           -n ${ns:$namespace} \
-          --name-template tgs \
+          --name-template $name_template \
           -f - 
 
         echo $valueConfig $extendSettings | jq -s 'reduce .[] as $item ({}; . * $item)' \
           | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
           -n ${ns:$namespace} \
-          --name-template tgs \
+          --name-template $name_template \
           -f - 
       }
   cache:
