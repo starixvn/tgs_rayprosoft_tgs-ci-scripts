@@ -26,7 +26,7 @@ default:
     GIT_STRATEGY: none
   stage: test
   script:
-    - dotnet test **/bin/$BuildConfiguration/*/*Tests.dll -l:junit
+    - dotnet test **/bin/$BuildConfiguration/*/*Tests.dll -l:'junit;LogFilePath=TestResults/TestResults.xml'
   needs:
     - build-code
   only:
