@@ -166,15 +166,15 @@ default:
       EOF
         )
         
-        echo "$valueConfig $extendSettings"
+        echo "$valueConfig" "$extendSettings"
 
-        echo "$valueConfig $extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
+        echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
           | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
           -n ${ns:$namespace} \
           --name-template $name_template \
           -f - 
 
-        echo "$valueConfig $extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
+        echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
           | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
           -n ${ns:$namespace} \
           --name-template $name_template \
