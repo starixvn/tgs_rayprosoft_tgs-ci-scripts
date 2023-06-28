@@ -147,7 +147,7 @@ default:
         local settingKey=$1
         local helmFolderName=$2
         local ns=$3
-        local extendSettings=${4:-$(</dev/stdin)}
+        local extendSettings=${4:-"$(</dev/stdin)"}
 
         local resources=$(kubectl get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
         local dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
