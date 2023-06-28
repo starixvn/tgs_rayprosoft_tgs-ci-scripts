@@ -165,8 +165,6 @@ default:
           }
       EOF
         )
-        
-        echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)'
 
         echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
           | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
