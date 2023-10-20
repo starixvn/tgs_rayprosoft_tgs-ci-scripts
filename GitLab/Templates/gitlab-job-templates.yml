@@ -6,9 +6,11 @@
 variables:
   BuildCacheKey: Tgs.Template.$CI_PIPELINE_IID
 
+
 default:
   before_script:
     - export Tag="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d%H%M).$CI_PIPELINE_IID"
+    - export DOTNET_hostBuilder__reloadConfigOnChange=false
 
 .build-code-template:
   stage: build
@@ -26,7 +28,7 @@ default:
     GIT_STRATEGY: none
   stage: test
   script:
-    - hostBuilder__reloadConfigOnChange=false dotnet test **/bin/$BuildConfiguration/*/*Tests.dll -l:'junit;LogFilePath=TestResults/TestResults.xml'
+    - dotnet test **/bin/$BuildConfiguration/*/*Tests.dll -l:'junit;LogFilePath=TestResults/TestResults.xml'
   needs:
     - build-code
   only:
