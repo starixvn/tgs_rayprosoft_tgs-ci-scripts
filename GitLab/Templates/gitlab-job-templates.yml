@@ -144,9 +144,6 @@ default:
     - kubePath=$(eval eval 'echo \$"$kube_config"')
     - export KUBECONFIG=$kubePath
     - |
-      echo "kubePath=$kubePath"
-      echo "KubeConfig_Raypro_dev=$KubeConfig_Raypro_dev"
-
       name_template=tgs
       function deploy_k8s() {
         local settingKey=$1
