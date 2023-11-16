@@ -26,9 +26,10 @@ default:
 .unit-test-template:
   variables:
     GIT_STRATEGY: none
+    Framework: net8.0
   stage: test
   script:
-    - dotnet test **/bin/$BuildConfiguration/*/*Tests.dll -l:'junit;LogFilePath=TestResults/TestResults.xml'
+    - dotnet test "**/bin/$BuildConfiguration/$Framework/*Tests.dll" -l:'junit;LogFilePath=TestResults/TestResults.xml'
   needs:
     - build-code
   only:
