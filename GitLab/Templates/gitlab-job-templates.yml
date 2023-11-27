@@ -97,8 +97,7 @@ default:
           /t:PublishContainer \
           -c $BuildConfiguration \
           /p:ContainerRepository=${image:=$ImageName} \
-          /p:ContainerImageTag=${imageTag:=$Tag} \
-          --no-restore
+          /p:ContainerImageTag=${imageTag:=$Tag}
         docker push "${image:=$ImageName}:${imageTag:=$Tag}"
       }
   script:
