@@ -96,8 +96,8 @@ default:
           --arch x64 \
           /t:PublishContainer \
           -c $BuildConfiguration \
-          /p:DockerImageName=${image:=$ImageName}
-          /p:DockerImageTag=${imageTag:=$Tag}
+          /p:ContainerImageName=${image:=$ImageName} \
+          /p:ContainerImageTag=${imageTag:=$Tag} \
           --no-restore
         docker push "${image:=$ImageName}:${imageTag:=$Tag}"
       }
