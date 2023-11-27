@@ -155,10 +155,17 @@ default:
         local ns=$3
         local extendSettings=${4:-"$(</dev/stdin)"}
 
-        local resources=$(kubectl get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+        local serviceResourceSetting=$(kubectl get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+        local defaultResourceSetting=$(kubectl get cm resources-setting -o jsonpath={.data.default})
+        local resources=$(echo $serviceResourceSetting $defaultResourceSetting | jq -s '.' | jq '.[0]')
+
         local dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
+        
         local node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
-        local autoscaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+        
+        local serviceAutoScaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+        local defaultAutoScaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.default})
+        local autoscaling=$(echo $serviceAutoScaling $defaultAutoScaling | jq -s '.' | jq '.[0]')
 
         local valueConfig=$(
           cat << EOF
