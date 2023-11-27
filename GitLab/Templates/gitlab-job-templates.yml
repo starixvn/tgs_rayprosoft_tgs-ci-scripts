@@ -91,10 +91,13 @@ default:
         local image=$2
         local imageTag=$3
 
-        dotnet build "${projectPath:=$project}" \
+        dotnet publish "${projectPath:=$project}" \
+          --os linux \
+          --arch x64 \
+          /t:PublishContainer \
           -c $BuildConfiguration \
-          -t:ContainerBuild \
-          -p:DockerfileTag="${image:=$ImageName}:${imageTag:=$Tag}" \
+          /p:DockerImageName=${image:=$ImageName}
+          /p:DockerImageTag=${imageTag:=$Tag}
           --no-restore
         docker push "${image:=$ImageName}:${imageTag:=$Tag}"
       }
