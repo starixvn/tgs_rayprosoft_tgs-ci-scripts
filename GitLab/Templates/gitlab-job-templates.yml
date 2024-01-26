@@ -15,6 +15,7 @@ default:
 .build-code-template:
   stage: build
   script:
+    - dotnet clean
     - dotnet build -c $BuildConfiguration
   only:
     - merge_requests
