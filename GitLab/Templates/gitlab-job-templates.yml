@@ -159,8 +159,11 @@ default:
         local defaultResourceSetting=$(kubectl get cm resources-setting -o jsonpath={.data.default})
         local resources=$(echo $serviceResourceSetting $defaultResourceSetting | jq -s '.' | jq '.[0]')
 
+        local monitorResourceSetting=$(kubectl get cm resources-setting-monitor -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+        local defaultMonitorResourceSetting=$(kubectl get cm resources-setting-monitor -o jsonpath={.data.default})
+        local resourcesMonitor=$(echo $monitorResourceSetting $defaultMonitorResourceSetting | jq -s '.' | jq '.[0]')
+
         local dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
-        
         local node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
         
         local serviceAutoScaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
@@ -174,6 +177,7 @@ default:
             "nodeSelector": $node_selector,
             "tolerations": [$dedicated],
             "resources": $resources,
+            "resourcesMonitor": $resourcesMonitor,
             "autoscaling": $autoscaling
           }
       EOF
