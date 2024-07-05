@@ -177,7 +177,7 @@ default:
             "nodeSelector": $node_selector,
             "tolerations": [$dedicated],
             "resources": $resources,
-            "resourcesMonitor": $resourcesMonitor,
+            "monitorResources": $resourcesMonitor,
             "autoscaling": $autoscaling
           }
       EOF
