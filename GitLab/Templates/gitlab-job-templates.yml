@@ -168,9 +168,7 @@ default:
         local defaultMonitorResourceSetting=$(kubectl get cm resources-setting-monitor -o jsonpath={.data.default})
         local resourcesMonitor=$(echo $monitorResourceSetting $defaultMonitorResourceSetting | jq -s '.' | jq '.[0]')
 
-
         local dedicated=$(kubectl get cm tgs-settings -o jsonpath={.data.dedicated})
-        
         local node_selector=$(kubectl get cm tgs-settings -o jsonpath={.data.node-selector})
         
         local serviceAutoScaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
@@ -189,10 +187,6 @@ default:
           }
       EOF
         )
-        echo "resourcesMonitor=$resourcesMonitor"
-        echo "valueConfig=$valueConfig"
-        echo "extendSettings=$extendSettings"
-        echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)'
 
         echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
           | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
