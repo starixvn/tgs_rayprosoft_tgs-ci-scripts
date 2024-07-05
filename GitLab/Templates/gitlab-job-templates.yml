@@ -20,6 +20,7 @@ default:
   only:
     - merge_requests
     - main
+    - for_monitor_resource
   cache:
     key: $BuildCacheKey
     untracked: true
@@ -36,6 +37,7 @@ default:
   only:
     - merge_requests
     - main
+    - for_monitor_resource
   cache:
     key: $BuildCacheKey
     untracked: true
@@ -52,6 +54,7 @@ default:
     - unit-test
   only:
     - main
+    - for_monitor_resource
   cache:
     key: $BuildCacheKey
     untracked: true
@@ -80,6 +83,7 @@ default:
     - unit-test
   only:
     - main
+    - for_monitor_resource
   cache:
     key: $BuildCacheKey
     untracked: true
@@ -112,6 +116,7 @@ default:
     - unit-test
   only:
     - main
+    - for_monitor_resource
   before_script:
     - !reference [default, before_script]
     - mkdir -p "$artifacts/k8s"
@@ -187,7 +192,7 @@ default:
 
         echo "valueConfig=$valueConfig"
         echo "extendSettings=$extendSettings"
-        
+
         echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
           | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
           -n ${ns:$namespace} \
