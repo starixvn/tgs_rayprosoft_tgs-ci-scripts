@@ -184,7 +184,8 @@ default:
             "nodeSelector": $node_selector,
             "tolerations": [$dedicated],
             "resources": $resources,
-            "autoscaling": $autoscaling,
+            "resourcesMonitor": $resourcesMonitor,
+            "autoscaling": $autoscaling
           }
       EOF
         )
