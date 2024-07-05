@@ -112,7 +112,6 @@ default:
     - unit-test
   only:
     - main
-    - for_monitor_resource
   before_script:
     - !reference [default, before_script]
     - mkdir -p "$artifacts/k8s"
