@@ -184,14 +184,14 @@ default:
             "nodeSelector": $node_selector,
             "tolerations": [$dedicated],
             "resources": $resources,
-            "resourcesMonitor": $resourcesMonitor,
             "autoscaling": $autoscaling,
           }
       EOF
         )
-
+        echo "resourcesMonitor=$resourcesMonitor"
         echo "valueConfig=$valueConfig"
         echo "extendSettings=$extendSettings"
+        echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)'
 
         echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
           | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
