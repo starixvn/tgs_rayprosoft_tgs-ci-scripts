@@ -20,7 +20,6 @@ default:
   only:
     - merge_requests
     - main
-    - fix_monitor_resource
   cache:
     key: $BuildCacheKey
     untracked: true
@@ -37,7 +36,6 @@ default:
   only:
     - merge_requests
     - main
-    - fix_monitor_resource
   cache:
     key: $BuildCacheKey
     untracked: true
@@ -54,7 +52,6 @@ default:
     - unit-test
   only:
     - main
-    - fix_monitor_resource
   cache:
     key: $BuildCacheKey
     untracked: true
@@ -83,7 +80,6 @@ default:
     - unit-test
   only:
     - main
-    - fix_monitor_resource
   cache:
     key: $BuildCacheKey
     untracked: true
