@@ -255,19 +255,19 @@ default:
         local ns=$3
         local extendSettings=${4:-"$(</dev/stdin)"}
 
-        local serviceResourceSetting=$(kubectl get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
-        local defaultResourceSetting=$(kubectl get cm resources-setting -o jsonpath={.data.default})
+        local serviceResourceSetting=$(kubectl -n $namespace get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+        local defaultResourceSetting=$(kubectl -n $namespace get cm resources-setting -o jsonpath={.data.default})
         local resources=$(echo $serviceResourceSetting $defaultResourceSetting | jq -s '.' | jq '.[0]')
 
-        local monitorResourceSetting=$(kubectl get cm resources-setting-monitor -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
-        local defaultMonitorResourceSetting=$(kubectl get cm resources-setting-monitor -o jsonpath={.data.default})
+        local monitorResourceSetting=$(kubectl -n $namespace get cm resources-setting-monitor -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+        local defaultMonitorResourceSetting=$(kubectl -n $namespace get cm resources-setting-monitor -o jsonpath={.data.default})
         local resourcesMonitor=$(echo $monitorResourceSetting $defaultMonitorResourceSetting | jq -s '.' | jq '.[0]')
 
-        local dedicated=$(kubectl get cm tgs-settings -o jsonpath="{.data.$DedicatedKey}")
-        local node_selector=$(kubectl get cm tgs-settings -o jsonpath="{.data.$NodeSelectorKey}")
+        local dedicated=$(kubectl -n $namespace get cm tgs-settings -o jsonpath="{.data.$DedicatedKey}")
+        local node_selector=$(kubectl -n $namespace get cm tgs-settings -o jsonpath="{.data.$NodeSelectorKey}")
         
-        local serviceAutoScaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
-        local defaultAutoScaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.default})
+        local serviceAutoScaling=$(kubectl -n $namespace get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+        local defaultAutoScaling=$(kubectl -n $namespace get cm autoscaling-setting -o jsonpath={.data.default})
         local autoscaling=$(echo $serviceAutoScaling $defaultAutoScaling | jq -s '.' | jq '.[0]')
 
         local valueConfig=$(
