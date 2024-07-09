@@ -23,6 +23,9 @@ default:
   cache:
     key: $BuildCacheKey
     untracked: true
+  tags:
+    - dotnet
+    - linux
 
 .unit-test-template:
   variables:
@@ -44,6 +47,9 @@ default:
     when: always
     reports:
       junit: ./TestResults/*.xml
+  tags:
+    - dotnet
+    - linux
 
 .push-nuget-template:
   stage: publish
@@ -70,6 +76,9 @@ default:
     name: Nuget
     untracked: false
     expire_in: "30 days"
+  tags:
+    - dotnet
+    - linux
 
 .push-docker-image-template:
   variables:
@@ -103,6 +112,9 @@ default:
       }
   script:
     - push_docker $project $ImageName $Tag
+  tags:
+    - dotnet
+    - linux
 
 .push-k8s-template:
   variables:
@@ -136,6 +148,9 @@ default:
     expire_in: "180 days"
     paths:
       - $artifacts/**/*
+  tags:
+    - linux
+    - helm
 
 .deploy-template:
   variables:
