@@ -243,6 +243,12 @@ default:
   extends: .deploy-template
   image: 
     name: pgtgs/tgs-backend-deploy:latest
+  services:
+    - docker:20.10.16-dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_TLS_CERTDIR: ""
+    DOCKER_HOST: tcp://docker:2375
   before_script:
     - !reference [default, before_script]
     - |
