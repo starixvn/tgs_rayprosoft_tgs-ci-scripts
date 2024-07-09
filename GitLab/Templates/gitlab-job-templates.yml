@@ -247,7 +247,6 @@ default:
     - !reference [default, before_script]
     - |
       kubectl auth whoami
-      cat ~/.kube/config
       name_template=tgs
       function deploy_k8s() {
         local settingKey=$1
