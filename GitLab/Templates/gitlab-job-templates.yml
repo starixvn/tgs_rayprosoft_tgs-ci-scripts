@@ -152,101 +152,9 @@ default:
     - linux
     - helm
 
-.deploy-template:
-  variables:
-    GIT_STRATEGY: none
-    namespace: dev
-    kube_config:
-    replica: 1
-    DedicatedKey: dedicated
-    NodeSelectorKey: node-selector
+.deploy-function
   before_script:
-    - !reference [default, before_script]
-    - kubePath=$(eval eval 'echo \$"$kube_config"')
-    - export KUBECONFIG=$kubePath
     - |
-      name_template=tgs
-      function deploy_k8s() {
-        local settingKey=$1
-        local helmFolderName=$2
-        local ns=$3
-        local extendSettings=${4:-"$(</dev/stdin)"}
-
-        local serviceResourceSetting=$(kubectl get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
-        local defaultResourceSetting=$(kubectl get cm resources-setting -o jsonpath={.data.default})
-        local resources=$(echo $serviceResourceSetting $defaultResourceSetting | jq -s '.' | jq '.[0]')
-
-        local monitorResourceSetting=$(kubectl get cm resources-setting-monitor -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
-        local defaultMonitorResourceSetting=$(kubectl get cm resources-setting-monitor -o jsonpath={.data.default})
-        local resourcesMonitor=$(echo $monitorResourceSetting $defaultMonitorResourceSetting | jq -s '.' | jq '.[0]')
-
-        local dedicated=$(kubectl get cm tgs-settings -o jsonpath="{.data.$DedicatedKey}")
-        local node_selector=$(kubectl get cm tgs-settings -o jsonpath="{.data.$NodeSelectorKey}")
-        
-        local serviceAutoScaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
-        local defaultAutoScaling=$(kubectl get cm autoscaling-setting -o jsonpath={.data.default})
-        local autoscaling=$(echo $serviceAutoScaling $defaultAutoScaling | jq -s '.' | jq '.[0]')
-
-        local valueConfig=$(
-          cat << EOF
-          {
-            "replicaCount": $replica,
-            "nodeSelector": $node_selector,
-            "tolerations": [$dedicated],
-            "resources": $resources,
-            "monitorResources": $resourcesMonitor,
-            "autoscaling": $autoscaling
-          }
-      EOF
-        )
-
-        echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
-          | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
-          -n ${ns:$namespace} \
-          --name-template $name_template \
-          -f - 
-
-        echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
-          | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
-          -n ${ns:$namespace} \
-          --name-template $name_template \
-          -f - \
-          | kubectl -n ${ns:=$namespace} apply -f -
-      }
-  cache:
-    key: env-cache
-    paths:
-      - cache/
-  script:
-    - deploy_k8s $TgsSettingKey $HelmTemplateFolderName $namespace
-  after_script:
-    - |
-      curl --location --request POST $Telegram_Bot_Url \
-        --header 'Content-Type: application/json' \
-        --data-binary @- << EOF
-      {
-        "chat_id": $Telegram_Chat_Id,
-        "text": "
-      專案: $CI_PROJECT_NAME
-      服務: $HelmTemplateFolderName
-      分支: $CI_COMMIT_BRANCH
-      環境: $namespace
-      Pipeline: $CI_PIPELINE_URL
-      Commit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA
-      作者: $GITLAB_USER_LOGIN",
-        "parse_mode": "HTML"
-      }
-      EOF
-  when: manual
-
-.deploy-k8s-template:
-  extends: .deploy-template
-  image: 
-    name: pgtgs/tgs-backend-deploy:latest
-  before_script:
-    - !reference [default, before_script]
-    - |
-      kubectl auth whoami
       name_template=tgs
       function deploy_k8s() {
         local settingKey=$1
@@ -295,3 +203,50 @@ default:
           -f - \
           | kubectl -n ${ns:=$namespace} apply -f -
       }
+
+.deploy-template:
+  variables:
+    GIT_STRATEGY: none
+    namespace: dev
+    kube_config:
+    replica: 1
+    DedicatedKey: dedicated
+    NodeSelectorKey: node-selector
+  before_script:
+    - !reference [default, before_script]
+    - kubePath=$(eval eval 'echo \$"$kube_config"')
+    - export KUBECONFIG=$kubePath
+    - !reference [.deploy_function, before_script]
+  cache:
+    key: env-cache
+    paths:
+      - cache/
+  script:
+    - deploy_k8s $TgsSettingKey $HelmTemplateFolderName $namespace
+  after_script:
+    - |
+      curl --location --request POST $Telegram_Bot_Url \
+        --header 'Content-Type: application/json' \
+        --data-binary @- << EOF
+      {
+        "chat_id": $Telegram_Chat_Id,
+        "text": "
+      專案: $CI_PROJECT_NAME
+      服務: $HelmTemplateFolderName
+      分支: $CI_COMMIT_BRANCH
+      環境: $namespace
+      Pipeline: $CI_PIPELINE_URL
+      Commit: $CI_PROJECT_URL/-/commit/$CI_COMMIT_SHA
+      作者: $GITLAB_USER_LOGIN",
+        "parse_mode": "HTML"
+      }
+      EOF
+  when: manual
+
+.deploy-k8s-template:
+  extends: .deploy-template
+  image: 
+    name: pgtgs/tgs-backend-deploy:latest
+  before_script:
+    - !reference [default, before_script]
+    - !reference [.deploy_function, before_script]
