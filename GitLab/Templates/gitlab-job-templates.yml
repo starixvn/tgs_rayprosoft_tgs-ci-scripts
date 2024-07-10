@@ -152,7 +152,7 @@ default:
     - linux
     - helm
 
-.deploy-function:
+.deploy-function: &deploy-function
   - |
     name_template=tgs
     function deploy_k8s() {
@@ -203,7 +203,7 @@ default:
         | kubectl -n ${ns:=$namespace} apply -f -
     }
 
-.deploy-template: &.deploy_function
+.deploy-template:
   variables:
     GIT_STRATEGY: none
     namespace: dev
@@ -215,7 +215,7 @@ default:
     - !reference [default, before_script]
     - kubePath=$(eval eval 'echo \$"$kube_config"')
     - export KUBECONFIG=$kubePath
-    - *deploy_function
+    - *deploy-function
   cache:
     key: env-cache
     paths:
@@ -248,4 +248,4 @@ default:
     name: pgtgs/tgs-backend-deploy:latest
   before_script:
     - !reference [default, before_script]
-    - *deploy_function
+    - *deploy-function
