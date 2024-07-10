@@ -156,7 +156,7 @@ default:
   - |
     name_template=tgs
     function deploy_k8s() {
-      printenv
+      kubectl auth whoami
       local settingKey=$1
       local helmFolderName=$2
       local ns=$3
