@@ -152,7 +152,7 @@ default:
     - linux
     - helm
 
-.deploy-function
+.deploy-function:
   before_script:
     - |
       name_template=tgs
