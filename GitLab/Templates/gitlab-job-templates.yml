@@ -156,12 +156,6 @@ default:
   - |
     name_template=tgs
     function deploy_k8s() {
-      kubectl config view
-      echo "pwd="
-      pwd
-      
-      cat ~/.kube/config
-      
       local settingKey=$1
       local helmFolderName=$2
       local ns=$3
