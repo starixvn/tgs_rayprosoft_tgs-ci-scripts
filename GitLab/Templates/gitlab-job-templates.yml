@@ -176,6 +176,13 @@ default:
       local defaultAutoScaling=$(kubectl -n $namespace get cm autoscaling-setting -o jsonpath={.data.default})
       local autoscaling=$(echo $serviceAutoScaling $defaultAutoScaling | jq -s '.' | jq '.[0]')
 
+      echo "replica=$replica"
+      echo "node_selector=$node_selector"
+      echo "dedicated=$dedicated"
+      echo "resources=$resources"
+      echo "resourcesMonitor=$resourcesMonitor"
+      echo "autoscaling=$autoscaling"
+
       local valueConfig=$(
         cat << EOF
         {
