@@ -153,58 +153,57 @@ default:
     - helm
 
 .deploy-function:
-  before_script:
-    - |
-      name_template=tgs
-      function deploy_k8s() {
-        local settingKey=$1
-        local helmFolderName=$2
-        local ns=$3
-        local extendSettings=${4:-"$(</dev/stdin)"}
+  - |
+    name_template=tgs
+    function deploy_k8s() {
+      local settingKey=$1
+      local helmFolderName=$2
+      local ns=$3
+      local extendSettings=${4:-"$(</dev/stdin)"}
 
-        local serviceResourceSetting=$(kubectl -n $namespace get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
-        local defaultResourceSetting=$(kubectl -n $namespace get cm resources-setting -o jsonpath={.data.default})
-        local resources=$(echo $serviceResourceSetting $defaultResourceSetting | jq -s '.' | jq '.[0]')
+      local serviceResourceSetting=$(kubectl -n $namespace get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+      local defaultResourceSetting=$(kubectl -n $namespace get cm resources-setting -o jsonpath={.data.default})
+      local resources=$(echo $serviceResourceSetting $defaultResourceSetting | jq -s '.' | jq '.[0]')
 
-        local monitorResourceSetting=$(kubectl -n $namespace get cm resources-setting-monitor -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
-        local defaultMonitorResourceSetting=$(kubectl -n $namespace get cm resources-setting-monitor -o jsonpath={.data.default})
-        local resourcesMonitor=$(echo $monitorResourceSetting $defaultMonitorResourceSetting | jq -s '.' | jq '.[0]')
+      local monitorResourceSetting=$(kubectl -n $namespace get cm resources-setting-monitor -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+      local defaultMonitorResourceSetting=$(kubectl -n $namespace get cm resources-setting-monitor -o jsonpath={.data.default})
+      local resourcesMonitor=$(echo $monitorResourceSetting $defaultMonitorResourceSetting | jq -s '.' | jq '.[0]')
 
-        local dedicated=$(kubectl -n $namespace get cm tgs-settings -o jsonpath="{.data.$DedicatedKey}")
-        local node_selector=$(kubectl -n $namespace get cm tgs-settings -o jsonpath="{.data.$NodeSelectorKey}")
-        
-        local serviceAutoScaling=$(kubectl -n $namespace get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
-        local defaultAutoScaling=$(kubectl -n $namespace get cm autoscaling-setting -o jsonpath={.data.default})
-        local autoscaling=$(echo $serviceAutoScaling $defaultAutoScaling | jq -s '.' | jq '.[0]')
+      local dedicated=$(kubectl -n $namespace get cm tgs-settings -o jsonpath="{.data.$DedicatedKey}")
+      local node_selector=$(kubectl -n $namespace get cm tgs-settings -o jsonpath="{.data.$NodeSelectorKey}")
+      
+      local serviceAutoScaling=$(kubectl -n $namespace get cm autoscaling-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
+      local defaultAutoScaling=$(kubectl -n $namespace get cm autoscaling-setting -o jsonpath={.data.default})
+      local autoscaling=$(echo $serviceAutoScaling $defaultAutoScaling | jq -s '.' | jq '.[0]')
 
-        local valueConfig=$(
-          cat << EOF
-          {
-            "replicaCount": $replica,
-            "nodeSelector": $node_selector,
-            "tolerations": [$dedicated],
-            "resources": $resources,
-            "monitorResources": $resourcesMonitor,
-            "autoscaling": $autoscaling
-          }
-      EOF
-        )
+      local valueConfig=$(
+        cat << EOF
+        {
+          "replicaCount": $replica,
+          "nodeSelector": $node_selector,
+          "tolerations": [$dedicated],
+          "resources": $resources,
+          "monitorResources": $resourcesMonitor,
+          "autoscaling": $autoscaling
+        }
+    EOF
+      )
 
-        echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
-          | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
-          -n ${ns:$namespace} \
-          --name-template $name_template \
-          -f - 
+      echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
+        | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
+        -n ${ns:$namespace} \
+        --name-template $name_template \
+        -f - 
 
-        echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
-          | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
-          -n ${ns:$namespace} \
-          --name-template $name_template \
-          -f - \
-          | kubectl -n ${ns:=$namespace} apply -f -
-      }
+      echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
+        | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
+        -n ${ns:$namespace} \
+        --name-template $name_template \
+        -f - \
+        | kubectl -n ${ns:=$namespace} apply -f -
+    }
 
-.deploy-template:
+.deploy-template: &.deploy_function
   variables:
     GIT_STRATEGY: none
     namespace: dev
@@ -216,7 +215,7 @@ default:
     - !reference [default, before_script]
     - kubePath=$(eval eval 'echo \$"$kube_config"')
     - export KUBECONFIG=$kubePath
-    - !reference [.deploy_function, before_script]
+    - *deploy_function
   cache:
     key: env-cache
     paths:
@@ -249,4 +248,4 @@ default:
     name: pgtgs/tgs-backend-deploy:latest
   before_script:
     - !reference [default, before_script]
-    - !reference [.deploy_function, before_script]
+    - *deploy_function
