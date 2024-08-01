@@ -241,6 +241,7 @@ default:
       echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
         | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
         --set ingress.enabled=$ingressEnabled \
+        --set ingress.hosts[0].host=$domain \
         -n ${ns:$namespace} \
         --name-template $name_template \
         -f - 
@@ -249,6 +250,7 @@ default:
         | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
         -n ${ns:$namespace} \
         --set ingress.enabled=$ingressEnabled \
+        --set ingress.hosts[0].host=$domain \
         --name-template $name_template \
         -f - \
         | kubectl -n ${ns:=$namespace} apply -f -
