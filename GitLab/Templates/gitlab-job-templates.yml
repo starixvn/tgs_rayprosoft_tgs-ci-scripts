@@ -242,6 +242,8 @@ default:
         | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
         --set ingress.enabled=$ingressEnabled \
         --set ingress.hosts[0].host=$domain \
+        --set ingress.hosts[0].paths[0].path=/ \
+        --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
         -n ${ns:$namespace} \
         --name-template $name_template \
         -f - 
