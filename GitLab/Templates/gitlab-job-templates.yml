@@ -234,6 +234,7 @@ default:
           "resources": $resources,
           "monitorResources": $resourcesMonitor,
           "autoscaling": $autoscaling
+          "ingress.enabled": $ingressEnabled
         }
     EOF
       )
