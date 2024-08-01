@@ -233,14 +233,14 @@ default:
           "tolerations": [$dedicated],
           "resources": $resources,
           "monitorResources": $resourcesMonitor,
-          "autoscaling": $autoscaling,
-          "ingress.enabled": $ingressEnabled
+          "autoscaling": $autoscaling
         }
     EOF
       )
 
       echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
         | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
+        --set ingress.enabled=$ingressEnabled \
         -n ${ns:$namespace} \
         --name-template $name_template \
         -f - 
@@ -248,6 +248,7 @@ default:
       echo "$valueConfig" "$extendSettings" | jq -s 'reduce .[] as $item ({}; . * $item)' \
         | yq e -P | helm template artifacts/k8s/${helmFolderName:=$HelmTemplateFolderName} \
         -n ${ns:$namespace} \
+        --set ingress.enabled=$ingressEnabled \
         --name-template $name_template \
         -f - \
         | kubectl -n ${ns:=$namespace} apply -f -
