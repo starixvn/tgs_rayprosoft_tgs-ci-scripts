@@ -41,7 +41,7 @@ default:
         existed=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$cf_zoneid/dns_records?type=CNAME&name=${host}" \
                           -H "Authorization: Bearer $cf_token" \
                           -H "Content-Type: application/json" | jq '.result | length')
-
+        echo "existed=$existed"
         if [ "$existed" -eq 0 ]; then
           echo "DNS record does not exist. Creating new DNS record..."
           result=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$cf_zoneid/dns_records" \
