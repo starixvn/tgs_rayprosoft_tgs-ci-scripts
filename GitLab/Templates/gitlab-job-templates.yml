@@ -253,6 +253,8 @@ default:
         -n ${ns:$namespace} \
         --set ingress.enabled=$ingressEnabled \
         --set ingress.hosts[0].host=$domain \
+        --set ingress.hosts[0].paths[0].path=/ \
+        --set ingress.hosts[0].paths[0].pathType=Prefix \
         --name-template $name_template \
         -f - \
         | kubectl -n ${ns:=$namespace} apply -f -
