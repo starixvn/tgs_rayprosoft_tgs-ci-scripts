@@ -37,7 +37,7 @@ default:
 
         echo "cf_zoneid=$cf_zoneid"
         echo "dns_content=$dns_content"
-
+        echo "url=https://api.cloudflare.com/client/v4/zones/$cf_zoneid/dns_records?type=CNAME&name=${host}"
         existed=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$cf_zoneid/dns_records?type=CNAME&name=${host}" \
                           -H "Authorization: Bearer $cf_token" \
                           -H "Content-Type: application/json" | jq '.result | length')
