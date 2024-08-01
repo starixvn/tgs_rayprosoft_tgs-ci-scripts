@@ -243,7 +243,7 @@ default:
         --set ingress.enabled=$ingressEnabled \
         --set ingress.hosts[0].host=$domain \
         --set ingress.hosts[0].paths[0].path=/ \
-        --set ingress.hosts[0].paths[0].pathType=ImplementationSpecific \
+        --set ingress.hosts[0].paths[0].pathType=Prefix \
         -n ${ns:$namespace} \
         --name-template $name_template \
         -f - 
