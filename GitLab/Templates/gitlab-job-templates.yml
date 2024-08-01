@@ -11,7 +11,48 @@ default:
   before_script:
     - export Tag="$(date -d $CI_PIPELINE_CREATED_AT +%Y%m%d%H%M).$CI_PIPELINE_IID"
     - export DOTNET_hostBuilder__reloadConfigOnChange=false
+    - |
+      create_dns() {
+        local environment=$1
+        local host=$2
 
+        case $environment in
+          dev)
+            cf_zoneid=$cf_zoneid_dev
+            dns_content=$dns_content_dev
+            ;;
+          staging)
+            cf_zoneid=$cf_zoneid_staging
+            dns_content=$dns_content_staging
+            ;;
+          prod)
+            cf_zoneid=$cf_zoneid_prod
+            dns_content=$dns_content_prod
+            ;;
+          *)
+            echo "Unknown environment: $environment"
+            exit 1
+            ;;
+        esac
+
+        echo "cf_zoneid=$cf_zoneid"
+        echo "dns_content=$dns_content"
+
+        existed=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$cf_zoneid/dns_records?type=CNAME&name=${host}" \
+                          -H "Authorization: Bearer $cf_token" \
+                          -H "Content-Type: application/json" | jq '.result | length')
+
+        if [ "$existed" -eq 0 ]; then
+          echo "DNS record does not exist. Creating new DNS record..."
+          result=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$cf_zoneid/dns_records" \
+                   -H "Authorization: Bearer $cf_token" \
+                   -H "Content-Type: application/json" \
+                   --data '{"type":"CNAME","name":"'${host}'","content":"'$dns_content'","proxied":true}')
+          echo "CreateDnsRecord: ${result}"
+        else
+          echo "DNS record already exists."
+        fi
+      }
 .build-code-template:
   stage: build
   script:
