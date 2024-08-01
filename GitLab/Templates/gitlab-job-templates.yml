@@ -15,19 +15,22 @@ default:
       create_dns() {
         local environment=$1
         local host=$2
-
+        local dns_name=""
         case $environment in
           dev)
             cf_zoneid=$cf_zoneid_dev
             dns_content=$dns_content_dev
+            dns_name=rpgp.cc
             ;;
           staging)
             cf_zoneid=$cf_zoneid_staging
             dns_content=$dns_content_staging
+            dns_name=rpgp.cc
             ;;
           prod)
             cf_zoneid=$cf_zoneid_prod
             dns_content=$dns_content_prod
+            dns_name=srvptt.com
             ;;
           *)
             echo "Unknown environment: $environment"
@@ -37,7 +40,7 @@ default:
 
         echo "cf_zoneid=$cf_zoneid"
         echo "dns_content=$dns_content"
-        echo "url=https://api.cloudflare.com/client/v4/zones/$cf_zoneid/dns_records?type=CNAME&name=${host}"
+        echo "url=https://api.cloudflare.com/client/v4/zones/$cf_zoneid/dns_records?type=CNAME&name=${host}.${dns_name}"
         existed=$(curl -s -X GET "https://api.cloudflare.com/client/v4/zones/$cf_zoneid/dns_records?type=CNAME&name=${host}" \
                           -H "Authorization: Bearer $cf_token" \
                           -H "Content-Type: application/json" | jq '.result | length')
