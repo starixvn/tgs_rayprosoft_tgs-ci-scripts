@@ -233,7 +233,7 @@ default:
           "tolerations": [$dedicated],
           "resources": $resources,
           "monitorResources": $resourcesMonitor,
-          "autoscaling": $autoscaling
+          "autoscaling": $autoscaling,
           "ingress.enabled": $ingressEnabled
         }
     EOF
