@@ -233,7 +233,7 @@ default:
         {
           "replicaCount": $replica,
           "nodeSelector": $node_selector,
-          "tolerations": [$dedicated],
+          "tolerations": $dedicated,
           "resources": $resources,
           "monitorResources": $resourcesMonitor,
           "autoscaling": $autoscaling
