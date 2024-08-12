@@ -206,6 +206,9 @@ default:
       local ns=$3
       local extendSettings=${4:-"$(</dev/stdin)"}
 
+      echo "settingKey=$settingKey"
+      echo "TgsSettingKey=$TgsSettingKey"
+      
       local serviceResourceSetting=$(kubectl -n $namespace get cm resources-setting -o jsonpath={.data.${settingKey:=$TgsSettingKey}})
       local defaultResourceSetting=$(kubectl -n $namespace get cm resources-setting -o jsonpath={.data.default})
       local resources=$(echo $serviceResourceSetting $defaultResourceSetting | jq -s '.' | jq '.[0]')
