@@ -1,4 +1,6 @@
 .deploy-gatus:
+  image: 
+    name: pgtgs/tgs-backend-deploy:latest
   variables:
     namespace: dev
     kube_config:
@@ -6,9 +8,9 @@
   only:
     - main
   when: manual
-  before_script:
-    - kubePath=$(eval eval 'echo \$"$kube_config"')
-    - export KUBECONFIG=$kubePath
+  # before_script:
+  #   - kubePath=$(eval eval 'echo \$"$kube_config"')
+  #   - export KUBECONFIG=$kubePath
   script:
     - |
       cat << EOF | yq e -P | helm template deployment/k8s/$HelmTemplateFolderName \
