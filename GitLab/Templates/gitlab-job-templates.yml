@@ -144,6 +144,8 @@ default:
         local projectPath=$1
         local image=$2
         local imageTag=$3
+        echo "image=$image"
+        echo "imageTag=$imageTag"
 
         dotnet publish "${projectPath:=$project}" \
           --os linux \
